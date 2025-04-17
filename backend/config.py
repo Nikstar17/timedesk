@@ -13,7 +13,7 @@ class BaseConfig:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_ACCESS_COOKIE_PATH = "/"
-    JWT_REFRESH_COOKIE_PATH = "/refresh"
+    JWT_REFRESH_COOKIE_PATH = "/"
 
 
 class DevConfig(BaseConfig):

@@ -1,40 +1,39 @@
 name: Deploy Fullstack App
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    deploy:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        steps:
+            - name: Setup SSH Agent
+              uses: webfactory/ssh-agent@v0.8.0
+              with:
+                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Pull latest & deploy on server
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            echo "🔁 Pulling latest code"
-            cd ${{ secrets.PROJECT_PATH }}
-            git reset --hard
-            git pull origin main
+            - name: Pull latest & deploy on server
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+                    echo "🔁 Pulling latest code"
+                    cd ${{ secrets.PROJECT_PATH }}
+                    git reset --hard
+                    git pull origin main
 
-            echo "📦 Backend Setup"
-            cd backend
-            source venv/bin/activate
-            pip install -r requirements.txt
-            flask db upgrade
-            sudo systemctl restart backend
+                    echo "📦 Backend Setup"
+                    cd backend
+                    source venv/bin/activate
+                    pip install -r requirements.txt
+                    flask db upgrade
+                    sudo systemctl restart backend
 
-            echo "🌐 Frontend Build"
-            cd ../frontend
-            npm install
-            npm run build
+                    echo "🌐 Frontend Build"
+                    cd ../frontend
+                    npm install
+                    npm run build
 
-            echo "🚀 Deploy frontend to nginx web root"
-            sudo -u timedesk /usr/local/bin/deploy-frontend.sh
-EOF
+                    echo "🚀 Deploy frontend to nginx web root"
+                    sudo -u timedesk /usr/local/bin/deploy-frontend.sh

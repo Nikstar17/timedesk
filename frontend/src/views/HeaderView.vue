@@ -1,6 +1,6 @@
 <template>
   <div class="h-10 w-full bg-gray-100">
-    <p>Blau</p>
+    <p>Blau1</p>
   </div>
 </template>
 

@@ -86,7 +86,7 @@ async function handleLogin() {
       throw new Error(data.error || 'Login failed')
     }
 
-    // Bei Cookie-basierter Authentifizierung müssen wir den Token nicht 
+    // Bei Cookie-basierter Authentifizierung müssen wir den Token nicht
     // in localStorage speichern, da er in den Cookies gespeichert wird
     router.push('/')
   } catch (err: any) {

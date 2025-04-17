@@ -18,9 +18,9 @@ jobs:
               with:
                   ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-            - name: Sync Backend to Server
+            - name: Sync Frontend to Server
               run: |
-                  rsync -avz --delete ./backend/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.PROJECT_PATH }}/backend
+                  rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./frontend/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.PROJECT_PATH }}/frontend
 
             - name: Setup & Restart Backend
               run: |

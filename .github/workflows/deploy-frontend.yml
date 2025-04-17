@@ -20,7 +20,7 @@ jobs:
 
             - name: Sync Frontend to Server
               run: |
-                  rsync -avz --delete ./frontend/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.PROJECT_PATH }}/frontend
+                  rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./frontend/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.PROJECT_PATH }}/frontend
 
             - name: Build and Deploy on Server
               run: |

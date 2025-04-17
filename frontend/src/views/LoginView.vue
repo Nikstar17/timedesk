@@ -85,10 +85,8 @@ async function handleLogin() {
       throw new Error(data.error || 'Login failed')
     }
 
-    // Store token in localStorage
     localStorage.setItem('auth_token', data.access_token)
 
-    // Redirect to home page
     router.push('/')
   } catch (err: any) {
     error.value = err.message || 'An error occurred during login'

@@ -1,6 +1,6 @@
 <template>
   <div class="h-10 w-full bg-gray-100">
-    <p>Test1</p>
+    <p>Pink</p>
   </div>
 </template>
 

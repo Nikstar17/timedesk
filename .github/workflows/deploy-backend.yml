@@ -1,0 +1,30 @@
+name: Deploy Backend
+
+on:
+    push:
+        paths:
+            - "backend/**"
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+
+            - name: Setup SSH
+              uses: webfactory/ssh-agent@v0.8.0
+              with:
+                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+            - name: Deploy Backend
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+                    cd ${{ secrets.PROJECT_PATH }}/backend
+                    git pull origin main
+                    source venv/bin/activate
+                    pip install -r requirements.txt
+                    flask db upgrade
+                    sudo systemctl restart backend
+                  EOF

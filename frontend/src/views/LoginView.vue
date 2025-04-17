@@ -16,7 +16,7 @@
             Username
           </label>
           <input
-            v-model="username"
+            v-model="email"
             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="username"
             type="text"
@@ -57,7 +57,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const error = ref('')
 const isLoading = ref(false)
@@ -74,7 +74,7 @@ async function handleLogin() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        username: username.value,
+        email: username.value,
         password: password.value,
       }),
     })

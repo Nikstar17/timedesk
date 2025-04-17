@@ -73,7 +73,7 @@ async function handleLogin() {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // Important for cookie-based auth
+      credentials: 'include', // Wichtig für Cookie-basierte Authentifizierung
       body: JSON.stringify({
         email: email.value,
         password: password.value,
@@ -86,8 +86,8 @@ async function handleLogin() {
       throw new Error(data.error || 'Login failed')
     }
 
-    // With cookie-based auth, we don't need to store the token
-    // in localStorage, as it's handled by the cookies
+    // Bei Cookie-basierter Authentifizierung müssen wir den Token nicht 
+    // in localStorage speichern, da er in den Cookies gespeichert wird
     router.push('/')
   } catch (err: any) {
     error.value = err.message || 'An error occurred during login'

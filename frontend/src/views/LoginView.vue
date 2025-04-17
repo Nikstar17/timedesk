@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { API_BASE_URL } from '@/utils/config'
 
 const email = ref('')
 const password = ref('')
@@ -68,7 +69,7 @@ async function handleLogin() {
   error.value = ''
 
   try {
-    const response = await fetch('https://chronixly.com/api/login', {
+    const response = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

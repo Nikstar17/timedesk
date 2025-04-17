@@ -1,3 +1,6 @@
+import { ref } from 'vue'
+import { API_BASE_URL } from './config'
+
 /**
  * Gets CSRF token from cookies
  */
@@ -12,10 +15,14 @@ function getCsrfToken(cookieName = 'csrf_refresh_token') {
   return null
 }
 
-export async function checkAuth() {
+export const isAuthenticated = ref(false)
+export const isAdmin = ref(false)
+export const userFullName = ref('')
+
+export async function checkAuthStatus() {
   try {
-    // Make request to auth check endpoint with credentials to send cookies
-    const res = await fetch('https://chronixly.com/api/auth/check', {
+    const res = await fetch(`${API_BASE_URL}/auth/check`, {
+      method: 'GET',
       credentials: 'include',
     })
 
@@ -41,11 +48,11 @@ export async function refreshToken() {
     const csrfToken = getCsrfToken('csrf_refresh_token')
 
     // Call refresh token endpoint with the CSRF token in headers
-    const refreshRes = await fetch('https://chronixly.com/api/refresh', {
+    const refreshRes = await fetch(`${API_BASE_URL}/refresh`, {
       method: 'POST',
       credentials: 'include',
       headers: {
-        'X-CSRF-TOKEN': csrfToken || '', // Include CSRF token in header
+        'X-CSRF-TOKEN': csrfToken || '',
       },
     })
 
@@ -61,11 +68,11 @@ export async function logout() {
     const csrfToken = getCsrfToken('csrf_access_token')
 
     // Use correct logout endpoint with CSRF token
-    const response = await fetch('https://chronixly.com/api/logout', {
+    const response = await fetch(`${API_BASE_URL}/logout`, {
       method: 'POST',
       credentials: 'include',
       headers: {
-        'X-CSRF-TOKEN': csrfToken || '', // Include CSRF token in header
+        'X-CSRF-TOKEN': csrfToken || '',
       },
     })
     return response.ok

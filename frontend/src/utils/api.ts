@@ -1,5 +1,8 @@
 // filepath: g:\Projekte\timedesk\frontend\src\utils\api.ts
 
+import { refreshToken } from './auth'
+import { API_BASE_URL } from './config'
+
 /**
  * Gets CSRF token from cookies
  */
@@ -49,7 +52,7 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
         if (errorData.msg === 'Token has expired') {
           // Try to refresh the token
-          const refreshRes = await fetch('https://chronixly.com/api/refresh', {
+          const refreshRes = await fetch(`${API_BASE_URL}/refresh`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -82,4 +85,56 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
     console.error('API request failed:', error)
     throw error
   }
+}
+
+export const api = {
+  async fetcher(url: string, options: RequestInit = {}) {
+    const requestOptions = { ...options }
+
+    if (!requestOptions.headers) {
+      requestOptions.headers = {}
+    }
+
+    const method = requestOptions.method?.toUpperCase() || 'GET'
+    if (method !== 'GET' && method !== 'HEAD') {
+      const csrfToken = getCsrfToken()
+      if (csrfToken) {
+        ;(requestOptions.headers as Record<string, string>)['X-CSRF-TOKEN'] = csrfToken
+      }
+    }
+
+    requestOptions.credentials = 'include'
+
+    try {
+      let response = await fetch(url, requestOptions)
+
+      if (response.status === 401) {
+        const errorData = await response.json()
+
+        if (errorData.msg === 'Token has expired') {
+          const refreshSuccess = await refreshToken()
+          if (refreshSuccess) {
+            const refreshRes = await fetch(`${API_BASE_URL}/refresh`, {
+              method: 'POST',
+              credentials: 'include',
+            })
+
+            if (refreshRes.ok) {
+              const newCsrfToken = getCsrfToken()
+              if (newCsrfToken) {
+                ;(requestOptions.headers as Record<string, string>)['X-CSRF-TOKEN'] = newCsrfToken
+              }
+
+              return fetch(url, requestOptions)
+            }
+          }
+        }
+      }
+
+      return response
+    } catch (error) {
+      console.error('API request failed:', error)
+      throw error
+    }
+  },
 }

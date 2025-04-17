@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
-import { checkAuth } from '@/utils/auth'
+import { checkAuthStatus } from '@/utils/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,7 +23,7 @@ const router = createRouter({
 
 // Improved navigation guard
 router.beforeEach(async (to, from, next) => {
-  const isAuthenticated = await checkAuth()
+  const isAuthenticated = await checkAuthStatus()
 
   // Require authentication for pages that need it
   if (to.matched.some((record) => record.meta.requiresAuth)) {

@@ -18,23 +18,23 @@ jobs:
             - name: Pull latest & deploy on server
               run: |
                   ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-                    echo "🔁 Pulling latest code"
+                    echo "Pulling latest code"
                     cd ${{ secrets.PROJECT_PATH }}
                     git reset --hard
                     git pull origin main
 
-                    echo "📦 Backend Setup"
+                    echo "Backend Setup"
                     cd backend
                     source venv/bin/activate
                     pip install -r requirements.txt
                     flask db upgrade
                     sudo systemctl restart backend
 
-                    echo "🌐 Frontend Build"
+                    echo "Frontend Build"
                     cd ../frontend
                     npm install
                     npm run build
 
-                    echo "🚀 Deploy frontend to nginx web root"
+                    echo "Deploy frontend to nginx web root"
                     ls -l /usr/local/bin/deploy-frontend.sh
-                    sudo -u timedesk /usr/local/bin/deploy-frontend.sh || echo "❌ Deploy-Skript konnte nicht ausgeführt werden"
+                    sudo -u timedesk /usr/local/bin/deploy-frontend.sh || echo "Deploy-Skript konnte nicht ausgeführt werden"

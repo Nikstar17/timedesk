@@ -19,15 +19,16 @@ const router = createRouter({
   ],
 })
 
-// Navigation guard to check auth status
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('auth_token') !== null
+import { checkAuth } from '@/utils/auth'
 
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login')
-  } else {
-    next()
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+    const isAuthenticated = await checkAuth()
+    if (!isAuthenticated) {
+      return next('/login')
+    }
   }
+  next()
 })
 
 export default router

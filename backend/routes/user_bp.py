@@ -89,3 +89,9 @@ def logout_user():
     response = jsonify({"message": "Logout successful"})
     unset_jwt_cookies(response)
     return response
+
+
+@user_bp.route("/auth/check", methods=["GET"])
+@jwt_required()
+def auth_check():
+    return jsonify({"msg": "Authenticated"}), 200

@@ -68,7 +68,7 @@ async function handleLogin() {
   error.value = ''
 
   try {
-    const response = await fetch('https://chronixly/api/login', {
+    const response = await fetch('https://chronixly.com/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

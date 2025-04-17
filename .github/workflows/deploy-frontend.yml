@@ -3,7 +3,7 @@ name: Deploy Frontend
 on:
     push:
         paths:
-            - "frontend/**" # Nur bei Änderungen im frontend/
+            - "frontend/**"
 
 jobs:
     deploy:
@@ -21,19 +21,11 @@ jobs:
             - name: Deploy Frontend to Server
               run: |
                   ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-                    # In dein Projektverzeichnis wechseln
                     cd ${{ secrets.PROJECT_PATH }}/frontend
 
-                    # Code aktualisieren
-                    git pull origin main
-
-                    # Abhängigkeiten installieren & Build erzeugen
-                    npm ci
+                    npm install
                     npm run build
 
-                    # Bestehenden Webroot leeren und neue Dateien kopieren
                     sudo rm -rf /var/www/chronixly.com/html/*
                     sudo cp -r dist/* /var/www/chronixly.com/html/
-
-                    echo "🎉 Frontend deployed!"
                   EOF

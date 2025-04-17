@@ -1,0 +1,41 @@
+name: Deploy Fullstack App
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Setup SSH Agent
+              uses: webfactory/ssh-agent@v0.8.0
+              with:
+                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+            - name: Pull latest & deploy on server
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+                    echo "🔁 Pulling latest code"
+                    cd ${{ secrets.PROJECT_PATH }}
+                    git reset --hard
+                    git pull origin main
+
+                    echo "📦 Backend Setup"
+                    cd backend
+                    source venv/bin/activate
+                    pip install -r requirements.txt
+                    flask db upgrade
+                    sudo systemctl restart backend
+
+                    echo "🌐 Frontend Build"
+                    cd ../frontend
+                    npm install
+                    npm run build
+
+                    echo "🚀 Deploy frontend to nginx web root"
+                    sudo rm -rf /var/www/chronixly.com/html/*
+                    sudo cp -r dist/* /var/www/chronixly.com/html/
+                  EOF

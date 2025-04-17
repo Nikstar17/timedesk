@@ -73,6 +73,7 @@ async function handleLogin() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Important for cookie-based auth
       body: JSON.stringify({
         email: email.value,
         password: password.value,
@@ -85,8 +86,8 @@ async function handleLogin() {
       throw new Error(data.error || 'Login failed')
     }
 
-    localStorage.setItem('auth_token', data.access_token)
-
+    // With cookie-based auth, we don't need to store the token
+    // in localStorage, as it's handled by the cookies
     router.push('/')
   } catch (err: any) {
     error.value = err.message || 'An error occurred during login'

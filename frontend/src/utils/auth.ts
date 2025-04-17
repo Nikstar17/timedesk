@@ -1,29 +1,37 @@
 export async function checkAuth() {
-  // First check if we have a token in localStorage
-  const token = localStorage.getItem('auth_token')
-  if (!token) {
-    return false
-  }
-
   try {
-    // Make request to auth check endpoint with the token in Authorization header
+    // Make request to auth check endpoint with credentials to send cookies
     const res = await fetch('https://chronixly.com/api/auth/check', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       credentials: 'include',
     })
     return res.ok
   } catch (e) {
-    // If there's any error, consider user not authenticated
     return false
   }
 }
 
-export function getAuthToken() {
-  return localStorage.getItem('auth_token')
+export async function refreshToken() {
+  try {
+    // Call refresh token endpoint with credentials to send cookies
+    const refreshRes = await fetch('https://chronixly.com/api/refresh', {
+      method: 'POST',
+      credentials: 'include',
+    })
+
+    return refreshRes.ok
+  } catch (e) {
+    return false
+  }
 }
 
-export function clearAuth() {
-  localStorage.removeItem('auth_token')
+export async function logout() {
+  try {
+    const response = await fetch('https://chronixly.com/api/logout', {
+      method: 'POST',
+      credentials: 'include',
+    })
+    return response.ok
+  } catch (e) {
+    return false
+  }
 }

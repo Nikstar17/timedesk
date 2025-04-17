@@ -1,3 +1,17 @@
+/**
+ * Gets CSRF token from cookies
+ */
+function getCsrfToken(cookieName = 'csrf_refresh_token') {
+  const cookies = document.cookie.split(';')
+  for (let cookie of cookies) {
+    cookie = cookie.trim()
+    if (cookie.startsWith(cookieName + '=')) {
+      return cookie.substring(cookieName.length + 1)
+    }
+  }
+  return null
+}
+
 export async function checkAuth() {
   try {
     // Make request to auth check endpoint with credentials to send cookies
@@ -23,10 +37,16 @@ export async function checkAuth() {
 
 export async function refreshToken() {
   try {
-    // Call refresh token endpoint - using the correct path from backend
+    // Get CSRF token from cookies
+    const csrfToken = getCsrfToken('csrf_refresh_token')
+
+    // Call refresh token endpoint with the CSRF token in headers
     const refreshRes = await fetch('https://chronixly.com/api/refresh', {
       method: 'POST',
       credentials: 'include',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken || '', // Include CSRF token in header
+      },
     })
 
     return refreshRes.ok
@@ -37,10 +57,16 @@ export async function refreshToken() {
 
 export async function logout() {
   try {
-    // Use correct logout endpoint from the backend
+    // Get CSRF token from cookies
+    const csrfToken = getCsrfToken('csrf_access_token')
+
+    // Use correct logout endpoint with CSRF token
     const response = await fetch('https://chronixly.com/api/logout', {
       method: 'POST',
       credentials: 'include',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken || '', // Include CSRF token in header
+      },
     })
     return response.ok
   } catch (e) {

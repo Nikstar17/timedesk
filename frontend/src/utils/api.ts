@@ -1,50 +1,85 @@
 // filepath: g:\Projekte\timedesk\frontend\src\utils\api.ts
 
 /**
- * Wrapper für fetch, der die Cookie-basierte Authentifizierung handhabt
+ * Gets CSRF token from cookies
+ */
+function getCsrfToken(cookieName = 'csrf_access_token') {
+  const cookies = document.cookie.split(';')
+  for (let cookie of cookies) {
+    cookie = cookie.trim()
+    if (cookie.startsWith(cookieName + '=')) {
+      return cookie.substring(cookieName.length + 1)
+    }
+  }
+  return null
+}
+
+/**
+ * Wrapper for fetch that handles authentication and CSRF protection
  */
 export async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  // Optionen klonen, um das Original nicht zu verändern
+  // Clone the options to avoid modifying the original
   const requestOptions = { ...options }
 
-  // Headers hinzufügen, falls nicht vorhanden
+  // Add headers if not present
   if (!requestOptions.headers) {
     requestOptions.headers = {}
   }
 
-  // credentials option hinzufügen für Cookie-Übertragung
+  // For methods that modify data, add the CSRF token
+  const method = requestOptions.method?.toUpperCase() || 'GET'
+  if (method !== 'GET' && method !== 'HEAD') {
+    const csrfToken = getCsrfToken()
+    if (csrfToken) {
+      ;(requestOptions.headers as Record<string, string>)['X-CSRF-TOKEN'] = csrfToken
+    }
+  }
+
+  // Add credentials option for cookie-based auth
   requestOptions.credentials = 'include'
 
   try {
-    // Anfrage ausführen
+    // Make the initial request
     let response = await fetch(url, requestOptions)
 
-    // Bei 401 (Unauthorized) versuchen, das Token zu aktualisieren
+    // If we get a 401 with token expired message, try to refresh the token
     if (response.status === 401) {
       try {
         const errorData = await response.json()
 
         if (errorData.msg === 'Token has expired') {
-          // Token-Aktualisierung versuchen
+          // Try to refresh the token
           const refreshRes = await fetch('https://chronixly.com/api/refresh', {
             method: 'POST',
             credentials: 'include',
+            headers: {
+              'X-CSRF-TOKEN': getCsrfToken('csrf_refresh_token') || '',
+            },
           })
 
           if (refreshRes.ok) {
-            // Original-Anfrage wiederholen
+            // If token was refreshed successfully, retry the original request
+            // Need to update the CSRF token in the headers for the retry
+            if (method !== 'GET' && method !== 'HEAD') {
+              const newCsrfToken = getCsrfToken()
+              if (newCsrfToken) {
+                ;(requestOptions.headers as Record<string, string>)['X-CSRF-TOKEN'] = newCsrfToken
+              }
+            }
+
+            // Retry the original request
             return fetch(url, requestOptions)
           }
         }
       } catch (e) {
-        // Wenn JSON nicht geparst werden kann oder etwas anderes schief geht, mit der fehlgeschlagenen Antwort fortfahren
+        // If we can't parse the JSON or something else goes wrong, continue with the failed response
       }
     }
 
     return response
   } catch (error) {
-    // Bei Netzwerkfehlern protokollieren und erneut werfen
-    console.error('API-Anfrage fehlgeschlagen:', error)
+    // For network errors, log and rethrow
+    console.error('API request failed:', error)
     throw error
   }
 }

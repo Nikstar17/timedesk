@@ -15,26 +15,7 @@ jobs:
               with:
                   ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-            - name: Pull latest & deploy on server
+            - name: Execute remote deploy script
               run: |
-                  ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-                    echo "Pulling latest code"
-                    cd ${{ secrets.PROJECT_PATH }}
-                    git reset --hard
-                    git pull origin main
-
-                    echo "Backend Setup"
-                    cd backend
-                    source venv/bin/activate
-                    pip install -r requirements.txt
-                    flask db upgrade
-                    sudo systemctl restart backend
-
-                    echo "Frontend Build"
-                    cd ../frontend
-                    npm install
-                    npm run build
-
-                    echo "Deploy frontend to nginx web root"
-                    ls -l /usr/local/bin/deploy-frontend.sh
-                    sudo -u timedesk /usr/local/bin/deploy-frontend.sh || echo "Deploy-Skript konnte nicht ausgeführt werden"
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+                    "PROJECT_PATH='${{ secrets.PROJECT_PATH }}' bash ${{ secrets.PROJECT_PATH }}/deploy.sh"

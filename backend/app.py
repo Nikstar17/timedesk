@@ -5,6 +5,7 @@ from flask_cors import CORS
 from models import db
 from config import DevConfig, ProdConfig
 from routes.user_bp import user_bp
+from routes.project_bp import project_bp
 import os
 from dotenv import load_dotenv
 
@@ -26,6 +27,7 @@ jwt = JWTManager(app)
 
 # Blueprints registrieren
 app.register_blueprint(user_bp, url_prefix="/api")
+app.register_blueprint(project_bp, url_prefix="/api")
 
 if __name__ == "__main__":
     app.run(debug=app.config["DEBUG"])

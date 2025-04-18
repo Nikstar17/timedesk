@@ -2,5 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-
-from .user import User
+# Import models after db is defined to avoid circular imports
+from .user import User  # noqa
+from .project import Project  # noqa

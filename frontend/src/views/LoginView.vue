@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center items-center min-h-screen bg-gray-100">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-6 text-center">Login to TimeDesk</h2>
+      <h2 class="text-2xl font-bold mb-6 text-center">Login to Chronixly</h2>
 
       <div
         v-if="error"

@@ -158,6 +158,7 @@ import {
 } from 'vue'
 import { fetchWithAuth } from '../utils/api'
 import { API_BASE_URL } from '../utils/config'
+import { DateTime } from 'luxon'
 
 const props = defineProps<{
   projectId: string
@@ -454,14 +455,16 @@ function initializeTimersForActiveEntries() {
         const activePause = entry.pauses.find((p) => p.is_active)
         if (activePause) {
           // Berechne die aktuelle Dauer der Pause
-          const start = new Date(activePause.start_time)
-          const now = new Date()
-          const diffMs = now.getTime() - start.getTime()
+          const start = DateTime.fromISO(activePause.start_time, { zone: 'utc' }).setZone(
+            'Europe/Berlin',
+          )
+          const now = DateTime.now().setZone('Europe/Berlin')
+          const diff = now.diff(start, ['hours', 'minutes', 'seconds']).toObject()
 
           currentPauseTimer.value[activePause.id] = {
-            hours: Math.floor(diffMs / (1000 * 60 * 60)),
-            minutes: Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)),
-            seconds: Math.floor((diffMs % (1000 * 60)) / 1000),
+            hours: Math.floor(diff.hours ?? 0),
+            minutes: Math.floor(diff.minutes ?? 0),
+            seconds: Math.floor(diff.seconds ?? 0),
           }
 
           // Aktualisiere die effektive Zeit

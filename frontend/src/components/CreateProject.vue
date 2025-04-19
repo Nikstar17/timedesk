@@ -1,42 +1,58 @@
 <template>
-  <div>
+  <div class="pl-4">
     <!-- Add Project Button -->
-    <button @click="openModal" class="add-project-btn">Add Project</button>
+    <button @click="openModal" class="add-project-btn">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5 mr-2"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        />
+      </svg>
+      Projekt hinzufügen
+    </button>
 
     <!-- Project Creation Modal -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>Create New Project</h2>
+          <h2>Neues Projekt erstellen</h2>
           <button @click="closeModal" class="close-btn">&times;</button>
         </div>
 
         <form @submit.prevent="createProject">
           <div class="form-group">
-            <label for="project-name">Project Name</label>
+            <label for="project-name">Projektname</label>
             <input
               id="project-name"
               v-model="projectName"
               type="text"
               required
-              placeholder="Enter project name"
+              placeholder="Projektnamen eingeben"
             />
           </div>
 
           <div class="form-group">
-            <label for="project-description">Description</label>
+            <label for="project-description">Beschreibung</label>
             <textarea
               id="project-description"
               v-model="projectDescription"
               rows="3"
-              placeholder="Enter project description"
+              placeholder="Projektbeschreibung eingeben"
               required
             ></textarea>
           </div>
 
           <div class="form-actions">
             <button type="submit" :disabled="isSubmitting" class="submit-button">
-              {{ isSubmitting ? 'Creating...' : 'Create Project' }}
+              {{ isSubmitting ? 'Wird erstellt...' : 'Projekt erstellen' }}
             </button>
           </div>
 
@@ -57,6 +73,8 @@
 import { ref } from 'vue'
 import { API_BASE_URL } from '../utils/config'
 import { fetchWithAuth } from '../utils/api'
+
+const emit = defineEmits(['project-created'])
 
 const projectName = ref('')
 const projectDescription = ref('')
@@ -97,9 +115,11 @@ const createProject = async () => {
     if (response.ok) {
       const data = await response.json()
       successMessage.value = data.message || 'Project created successfully!'
+      // Emit event that a new project was created
+      emit('project-created')
       setTimeout(() => {
         closeModal()
-      }, 1500)
+      }, 100)
     } else {
       const errorData = await response.json()
       errorMessage.value = errorData.error || 'Failed to create project. Please try again.'
@@ -116,17 +136,29 @@ const createProject = async () => {
 <style scoped>
 .add-project-btn {
   padding: 10px 16px;
-  background-color: #4caf50;
+  background: linear-gradient(to bottom, #4caf50, #45a049);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .add-project-btn:hover {
-  background-color: #45a049;
+  background: linear-gradient(to bottom, #55c159, #4caf50);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.add-project-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modal-overlay {
@@ -200,22 +232,33 @@ textarea {
 .submit-button {
   width: 100%;
   padding: 10px 15px;
-  background-color: #4caf50;
+  background: linear-gradient(to bottom, #4caf50, #45a049);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .submit-button:hover {
-  background-color: #45a049;
+  background: linear-gradient(to bottom, #55c159, #4caf50);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .submit-button:disabled {
-  background-color: #cccccc;
+  background: #cccccc;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .error-message {

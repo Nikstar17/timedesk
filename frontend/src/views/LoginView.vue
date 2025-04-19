@@ -48,6 +48,12 @@
             {{ isLoading ? 'Logging in...' : 'Login' }}
           </button>
         </div>
+
+        <div class="mt-4 text-center">
+          <router-link to="/register" class="text-blue-500 hover:text-blue-700">
+            Noch kein Konto? Hier registrieren
+          </router-link>
+        </div>
       </form>
     </div>
   </div>

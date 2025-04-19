@@ -17,6 +17,10 @@ class User(db.Model):
     created_at = Column(DateTime(timezone=True), nullable=False,
                         default=lambda: datetime.now(timezone.utc))
 
+    def __init__(self, email: str, password: str):
+        self.email = email
+        self.password = password
+
     @property
     def password(self):
         raise AttributeError("Password cannot be read.")

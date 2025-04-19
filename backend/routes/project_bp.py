@@ -1,54 +1,46 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Project, User
+from services.project_service import create_project, get_projects_for_user, delete_project
 
 project_bp = Blueprint("project_bp", __name__)
 
 
 @project_bp.route("/project", methods=["POST"])
 @jwt_required()
-def create_project():
+def create_project_route():
     data = request.get_json()
-
     if data is None:
         return jsonify({"error": "Invalid JSON data"}), 400
 
     current_user_id = get_jwt_identity()
+    success, error = create_project(
+        data["name"], data["description"], current_user_id)
 
-    new_project = Project()
-    new_project.name = data["name"]
-    new_project.description = data["description"]
-    new_project.user_id = current_user_id
-
-    try:
-        db.session.add(new_project)
-        db.session.commit()
-
-        return (jsonify({"message": "Project registered successfully"}), 201,)
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "An error occurred while adding Project: " + str(e)}), 500
+    if success:
+        return jsonify({"message": "Project registered successfully"}), 201
+    else:
+        return jsonify({"error": f"An error occurred while adding project: {error}"}), 500
 
 
 @project_bp.route("/project", methods=["GET"])
 @jwt_required()
 def get_user_projects():
     current_user_id = get_jwt_identity()
+    projects, error = get_projects_for_user(current_user_id)
 
-    try:
-        projects = Project.query.filter_by(user_id=current_user_id).all()
+    if error:
+        return jsonify({"error": f"An error occurred while fetching projects: {error}"}), 500
 
-        projects_list = []
-        for project in projects:
-            projects_list.append({
-                "id": str(project.id),
-                "name": project.name,
-                "description": project.description,
-                "created_at": project.created_at.isoformat()
-            })
+    return jsonify({"projects": projects}), 200
 
-        return jsonify({"projects": projects_list}), 200
 
-    except Exception as e:
-        return jsonify({"error": "An error occurred while fetching projects: " + str(e)}), 500
+@project_bp.route("/project/<uuid:project_uuid>", methods=['DELETE'])
+@jwt_required()
+def delete_project_route(project_uuid):
+    user_id = get_jwt_identity()
+    success, error = delete_project(str(project_uuid), user_id)
+
+    if success:
+        return jsonify({"message": "Project deleted successfully"}), 200
+    else:
+        return jsonify({"error": f"An error occurred while deleting project: {error}"}), 500
